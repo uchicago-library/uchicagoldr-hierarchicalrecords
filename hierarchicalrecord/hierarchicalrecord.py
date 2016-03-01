@@ -325,8 +325,9 @@ class HierarchicalRecord(object):
             result.append(self[x])
         return result
 
-    def toJSONN(self):
-        return dumps(self.data, indent=4)
+    def toJSON(self, **kwargs):
+        return dumps(self.data, **kwargs)
 
-    def fromJSON(self, json_file):
-        self.data = load(json_file)
+    def fromJSON(self, json_file, **kwargs):
+        with open(json_file, 'r') as f:
+            self.data = load(f, **kwargs)
