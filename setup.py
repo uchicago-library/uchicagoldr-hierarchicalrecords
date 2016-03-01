@@ -6,7 +6,7 @@ setup(
     author = "Brian Balsamo",
     author_email = ["balsamo@uchicago.edu"],
     packages = ['hierarchicalrecord'],
-    description = "A library provided easy access to a hierarchical record data organization",
+    description = "A library providing easy access to a hierarchical record data organization",
     keywords = ["uchicago","repository","records"],
     classifiers = [
         "Programming Language :: Python",
