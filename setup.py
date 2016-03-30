@@ -1,7 +1,7 @@
-from distutils.core import setup
+from setuptools import setup
 
 setup(
-    name = 'uchicagoldr',
+    name = 'hierarchicalrecord',
     version = '1.0.0',
     author = "Brian Balsamo",
     author_email = ["balsamo@uchicago.edu"],
