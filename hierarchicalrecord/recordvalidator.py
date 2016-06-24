@@ -38,7 +38,7 @@ class RecordValidator(object):
                 applicable_values.append(record[x])
         return applicable_values
 
-    def _check_values(applicable_values, valueTypeStr):
+    def _check_values(self, applicable_values, valueTypeStr):
         allowed_types = [
             ('str', str),
             ('dict', dict),
@@ -72,7 +72,7 @@ class RecordValidator(object):
             field_names = [x['Field Name'] for x in self.conf.data]
             for key in record.keys():
                 if self._generalize_key(key) not in field_names:
-                    return False
+                    return (False, "Bad key: {}".format(key))
         for field_data in self.conf.data:
             applicable_values = self._gather_applicable_values(field_data['Field Name'], record)
             nested = False
@@ -81,31 +81,34 @@ class RecordValidator(object):
             if field_data['Obligation'] == 'r':
                 if nested is False:
                     if len(applicable_values) < 1:
-                        return False
+                        return (False, "missing field: {}".format(field_data['Field Name']))
                 else:
                     parent_key = ".".join(field_data['Field Name'].split(".")[:-1])
                     leaf_key = field_data['Field Name'].split(".")[-1]
                     for parent in self._gather_applicable_values(parent_key, record):
                         if leaf_key not in parent:
-                            return False
+                            return (False, "missing field: {}".format(field_data['Field Name']))
             if len(applicable_values) < 1:
                 continue
 
             if field_data['Children Required'] != "":
+                child_count = 0
                 for x in applicable_values:
-                    if len(x) < int(field_data['Children Required']):
-                        return False
+                    if isinstance(x, dict):
+                        child_count += 1
+                if child_count < int(field_data['Children Required']):
+                    return (False, "Missing required child element.")
             if field_data['Cardinality'] != 'n':
                 if len(applicable_values) != int(field_data['Cardinality']):
-                    return False
+                    return (False, "Incorrect field cardinality")
             if field_data['Value Type'] != "":
                 if not self._check_values(applicable_values, field_data['Value Type']):
-                    return False
+                    return (False, "Bad value type")
             if field_data['Validation'] != "":
                 pattern = regex_compile(field_data['Validation'])
                 for value in applicable_values:
                     if not pattern.match(str(value)):
-                        return False
-        return True
+                        return (False, "Invalid field data")
+        return (True, None)
 
     conf = property(get_conf, set_conf)

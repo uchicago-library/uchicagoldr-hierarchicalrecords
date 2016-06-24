@@ -1,3 +1,5 @@
+from csv import DictReader
+
 class RecordConf(object):
 
     _data = None
