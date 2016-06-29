@@ -227,6 +227,8 @@ class HierarchicalRecord(object):
         self._no_leaf_index(keyList)
         new_key_str, new_key_index = self._split_path_strings(keyList[0])
         if len(keyList) == 1:
+            if not isinstance(start, dict):
+                raise KeyError(".".join(keyList))
             return start[new_key_str]
         else:
             return self._get_field_from_key_list(keyList[1:],
