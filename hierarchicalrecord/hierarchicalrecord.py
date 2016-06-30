@@ -174,7 +174,7 @@ class HierarchicalRecord(object):
         new_key_index_str = search(r'\d+$', in_str)
         if new_key_index_str:
             new_key_index = new_key_index_str.group()
-        if new_key_index:
+        if new_key_index is not None:
             new_key_str = in_str.rstrip(new_key_index)
             new_key_index = int(new_key_index)
         else:
@@ -360,7 +360,7 @@ class HierarchicalRecord(object):
         new_key_str, new_key_index = self._split_path_strings(keyList[0])
         if new_key_str not in start:
             start[new_key_str] = [None]
-        if new_key_index:
+        if new_key_index is not None:
             while len(start[new_key_str]) < new_key_index+1:
                 start[new_key_str].append(None)
         if len(keyList) > 1:
