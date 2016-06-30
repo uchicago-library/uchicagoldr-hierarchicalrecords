@@ -596,6 +596,8 @@ class HierarchicalRecord(object):
         self._reqs_indices(key)
         if self._check_if_value_exists(key):
             self._del_value_from_key_list(key)
+        else:
+            raise KeyError(key)
 
     def remove_field(self, key):
         """
@@ -613,6 +615,8 @@ class HierarchicalRecord(object):
         self._no_leaf_index(key)
         if self._check_if_field_exists(key):
             self._del_field_from_key_list(key)
+        else:
+            raise KeyError(key)
 
     def leaves(self, start=None, init_path=None):
         """

@@ -70,12 +70,12 @@ class RecordValidator(object):
     def set_conf(self, conf):
         self._conf = conf
 
-    def validate(self, record, strict=True):
+    def validate(self, record, strict=True, missing_is_error=True):
 
         errors = []
 
         if not isinstance(record, HierarchicalRecord):
-            return (False, "Not a HierarchicalRecord.")
+            raise ValueError('Not a HierarchicalRecord')
 
         if strict is True:
             field_names = [x['Field Name'] for x in self.conf.data]
@@ -91,14 +91,16 @@ class RecordValidator(object):
             if field_data['Obligation'] == "r":
                 if not nested:
                     if len(matching_keys) < 1:
-                        errors.append("Missing required key: {}".format(field_data['Field Name']))
+                        if missing_is_error is True:
+                            errors.append("Missing required key: {}".format(field_data['Field Name']))
                 else:
                     parent_keys = [key for key in record.keys() if self._generalize_key(key) == ".".join(field_data['Field Name'].split(".")[0:-1])]
                     for key in parent_keys:
                         values = record[key]
                         leaf_key = field_data['Field Name'].split(".")[-1]
                         if leaf_key not in values:
-                            errors.append("Missing required key: {} from {}".format(leaf_key, key))
+                            if missing_is_error is True:
+                                errors.append("Missing required key: {} from {}".format(leaf_key, key))
 
             applicable_values = self._gather_applicable_values(field_data['Field Name'], record)
             if len(applicable_values) == 0:
