@@ -1,5 +1,5 @@
 from json import dumps, load
-from re import search
+from re import compile as regex_compile
 
 """
 HierarchicalRecord is a class meant to contain complex nested data structures
@@ -19,6 +19,9 @@ It is meant to function as similarly to a standard dictionary as possible.
 """
 
 class HierarchicalRecord(object):
+
+    _TRAILING_DIGITS_REGEX = regex_compile(r'\d+$')
+
     def __init__(self, from_file=None):
         """
         Initializes a new HierarchicalRecord instance. If a JSON file is
@@ -171,7 +174,7 @@ class HierarchicalRecord(object):
         key syntax
         """
         new_key_index = None
-        new_key_index_str = search(r'\d+$', in_str)
+        new_key_index_str = self._TRAILING_DIGITS_REGEX.search(in_str)
         if new_key_index_str:
             new_key_index = new_key_index_str.group()
         if new_key_index is not None:
