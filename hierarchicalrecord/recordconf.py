@@ -2,11 +2,8 @@ from csv import DictReader, DictWriter
 from json import loads, dumps
 
 class RecordConf(object):
-
-    _data = None
-
     def __init__(self):
-        pass
+        self._data = []
 
     def get_data(self):
         return self._data
