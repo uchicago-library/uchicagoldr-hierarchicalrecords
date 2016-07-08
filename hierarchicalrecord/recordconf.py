@@ -5,7 +5,7 @@ from uuid import uuid1
 
 class RecordConf(object):
 
-    _field_names = ["Field Name", "Value Type", "Obligation", "Cardinality",
+    _field_names = ["id", "Field Name", "Value Type", "Obligation", "Cardinality",
                     "Validation", "Children Required"]
 
     def __init__(self):
@@ -15,8 +15,12 @@ class RecordConf(object):
         return self._data
 
     def set_data(self, data):
+        del self.data
         for x in data:
             self.add_rule(x)
+
+    def del_data(self):
+        self._data = []
 
     def from_csv(self, csv_filepath):
         rows = []
@@ -48,16 +52,20 @@ class RecordConf(object):
 
     def add_rule(self, rule):
         for x in self._field_names:
+            if x == "id":
+                continue
             if x not in rule:
                 raise ValueError("Rule missing a required key ({})".format(x))
-        rule_id = uuid1().hex
         rule_dict = {}
-        rule_dict['id'] = rule_id
         for x in self._field_names:
+            if x == 'id' and 'id' not in rule:
+                rule_id = uuid1().hex
+                rule_dict['id'] = rule_id
+                continue
             rule_dict[x] = rule[x]
         self.data.append(rule_dict)
 
     def remove_rule(self, rule_id):
         self.data = [x for x in self.data if x['id'] != rule_id]
 
-    data = property(get_data, set_data)
+    data = property(get_data, set_data, del_data)
