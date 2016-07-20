@@ -1,5 +1,5 @@
 from json import dumps, load
-from re import search
+from re import compile as regex_compile
 
 """
 HierarchicalRecord is a class meant to contain complex nested data structures
@@ -19,6 +19,9 @@ It is meant to function as similarly to a standard dictionary as possible.
 """
 
 class HierarchicalRecord(object):
+
+    _TRAILING_DIGITS_REGEX = regex_compile(r'\d+$')
+
     def __init__(self, from_file=None):
         """
         Initializes a new HierarchicalRecord instance. If a JSON file is
@@ -171,10 +174,10 @@ class HierarchicalRecord(object):
         key syntax
         """
         new_key_index = None
-        new_key_index_str = search(r'\d+$', in_str)
+        new_key_index_str = self._TRAILING_DIGITS_REGEX.search(in_str)
         if new_key_index_str:
             new_key_index = new_key_index_str.group()
-        if new_key_index:
+        if new_key_index is not None:
             new_key_str = in_str.rstrip(new_key_index)
             new_key_index = int(new_key_index)
         else:
@@ -227,6 +230,8 @@ class HierarchicalRecord(object):
         self._no_leaf_index(keyList)
         new_key_str, new_key_index = self._split_path_strings(keyList[0])
         if len(keyList) == 1:
+            if not isinstance(start, dict):
+                raise KeyError(".".join(keyList))
             return start[new_key_str]
         else:
             return self._get_field_from_key_list(keyList[1:],
@@ -253,6 +258,8 @@ class HierarchicalRecord(object):
         new_key_str, new_key_index = self._split_path_strings(keyList[0])
         if len(keyList) == 1:
             del start[new_key_str][new_key_index]
+            if len(start[new_key_str]) == 0:
+                del start[new_key_str]
         else:
             self._del_value_from_key_list(keyList[1:],
                                           start=start[new_key_str][new_key_index])
@@ -358,7 +365,7 @@ class HierarchicalRecord(object):
         new_key_str, new_key_index = self._split_path_strings(keyList[0])
         if new_key_str not in start:
             start[new_key_str] = [None]
-        if new_key_index:
+        if new_key_index is not None:
             while len(start[new_key_str]) < new_key_index+1:
                 start[new_key_str].append(None)
         if len(keyList) > 1:
@@ -524,8 +531,8 @@ class HierarchicalRecord(object):
         if not isinstance(key, list):
             raise ValueError()
         self._no_leaf_index(key)
-        if not isinstance(value, list):
-            raise ValueError("Fields can only be initialized to lists")
+        if not isinstance(value, list) or len(value) < 1:
+            raise ValueError("Fields can only be initialized to lists with at least one element")
         if not self._check_if_field_exists(key):
             self._init_field_from_key_list(key)
         self._set_field_from_key_list(key, value)
@@ -594,6 +601,8 @@ class HierarchicalRecord(object):
         self._reqs_indices(key)
         if self._check_if_value_exists(key):
             self._del_value_from_key_list(key)
+        else:
+            raise KeyError(key)
 
     def remove_field(self, key):
         """
@@ -611,6 +620,8 @@ class HierarchicalRecord(object):
         self._no_leaf_index(key)
         if self._check_if_field_exists(key):
             self._del_field_from_key_list(key)
+        else:
+            raise KeyError(key)
 
     def leaves(self, start=None, init_path=None):
         """
