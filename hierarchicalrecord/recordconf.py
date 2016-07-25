@@ -58,9 +58,12 @@ class RecordConf(object):
                 raise ValueError("Rule missing a required key ({})".format(x))
         rule_dict = {}
         for x in self._field_names:
-            if x == 'id' and 'id' not in rule:
+            if (x == 'id' and 'id' not in rule):
                 rule_id = uuid1().hex
                 rule_dict['id'] = rule_id
+                continue
+            if (x == 'id' and rule['id'] == ""):
+                rule_dict['id'] = uuid1().hex
                 continue
             rule_dict[x] = rule[x]
         self.data.append(rule_dict)
