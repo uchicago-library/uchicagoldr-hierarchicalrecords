@@ -116,8 +116,14 @@ class RecordValidator(object):
                     for key in parent_keys:
                         values = record[key]
                         for value in values:
-                            if len(values[leaf_key]) != int(field_data['Cardinality']):
-                                errors.append("Key cardinality error: {} in {} ({} != {})".format(leaf_key, key, str(len(values[leaf_key])), str(int(field_data['Cardinality']))))
+                            try:
+                                if len(values[leaf_key]) != int(field_data['Cardinality']):
+                                    errors.append("Key cardinality error: {} in {} ({} != {})".format(leaf_key, key, str(len(values[leaf_key])), str(int(field_data['Cardinality']))))
+                            except Exception as e:
+                                print(record.keys())
+                                print(values)
+                                print(leaf_key)
+                                raise
 
             if field_data['Value Type'] != "":
                 comp_type = self._read_value_type(field_data['Value Type'])
